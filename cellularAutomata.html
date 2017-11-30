@@ -1,0 +1,104 @@
+<html>
+
+<head>
+    <style>
+        * { margin: 0; padding: 0 }
+        .active { background-color: #173256; }
+        /* .inactive { background-color: #D99941; } */
+        .inactive { background-color: #C0BC6D}
+        .row div {
+            display: inline-block;
+            height: 10px;
+            width: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="row"></div>
+    </div>
+
+    <script>
+
+        function randomState() {
+            return Math.floor(Math.random() * 2)
+        }
+        function randomizeRow(rowDiv) {
+            for (let i = 0; i < rowDiv.childNodes.length; i++) {
+                let div = rowDiv.childNodes[i]
+                div.classList.add(randomState() ? 'active' : 'inactive')
+            }
+        }
+        function duplicateRow() {
+            let allRows = document.querySelectorAll('.row')
+            let lastRow = allRows[allRows.length - 1]
+            let clone = lastRow.cloneNode(true)
+            document.querySelector('.wrapper').appendChild(clone)
+            processRow(clone, lastRow)
+        }
+        function processRow(rowDiv, parentRowDiv) {
+            for (let i = 0; i < rowDiv.childNodes.length; i++) {
+                let target = rowDiv.childNodes[i]
+                let prevSelf = parentRowDiv.childNodes[i]
+                let leftSibling =
+                    prevSelf.previousElementSibling ||
+                    parentRowDiv.childNodes[parentRowDiv.childNodes.length - 1]
+                let rightSibling =
+                    prevSelf.nextElementSibling ||
+                    parentRowDiv.childNodes[0]
+                let toggleClass = setActiveIfMatchesRule.bind(
+                    null,
+                    target,
+                    leftSibling,
+                    prevSelf,
+                    rightSibling
+                )
+                toggleClass([1, 1, 1], false)
+                toggleClass([1, 1, 0], true)
+                toggleClass([1, 0, 1], false)
+                toggleClass([1, 0, 0], false)
+                toggleClass([0, 1, 1], true)
+                toggleClass([0, 1, 0], false)
+                toggleClass([0, 0, 1], false)
+                toggleClass([0, 0, 0], true)
+            }
+        }
+        function setActiveIfMatchesRule(
+            target,
+            leftSibling,
+            prevSelf,
+            rightSibling,
+            rule,
+            ruleValue
+        ) {
+            let matchesRule =
+                state(leftSibling) === rule[0] &&
+                state(prevSelf) === rule[1] &&
+                state(rightSibling) === rule[2]
+            if (matchesRule) setIsActive(target, ruleValue)
+        }
+        function state(cellDiv) {
+            return cellDiv.classList.contains('active') ? 1 : 0
+        }
+        function setIsActive(cellDiv, isActive) {
+            if (!!isActive) {
+                cellDiv.classList.remove('inactive')
+                cellDiv.classList.add('active')
+            } else {
+                cellDiv.classList.remove('active')
+                cellDiv.classList.add('inactive')
+            }
+        }
+        for (let i = 0; i < 128; i++) {
+            let div = document.createElement('div')
+            document.querySelector('.row').appendChild(div)
+        }
+        randomizeRow(document.querySelector('.row'))
+        setInterval(duplicateRow, 100)
+        setTimeout(() => clearInterval(1), 7000)
+
+    </script>
+</body>
+
+</html>
